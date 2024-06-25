@@ -1,10 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Web Page</title>
+    <meta charset="utf-8" />
+    <title>Advanced Twitter Search Tool by Park Sy Bil</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
 </head>
-<body>
-    <h1>Welcome to My Web Page</h1>
-    <p>This is a simple web page hosted on GitHub Pages.</p>
+<body class="bg-gray-200">
+    <div class="bg-white mx-auto max-w-2xl rounded-lg shadow-lg overflow-hidden p-6">
+        <h1 class="text-blue-500 text-center text-3xl font-bold mb-4">Advanced Twitter Search Tool</h1>
+        <form id="searchForm">
+            <input type="text" id="normal-search-term" placeholder="Normal keywords" class="w-full mb-2 p-2 border rounded" required>
+            <input type="text" id="exact-search-term" placeholder='Exact match keywords (e.g. "exact match")' class="w-full mb-2 p-2 border rounded">
+            <select id="result-type" class="w-full mb-2 p-2 border rounded">
+                <option value="mixed">Mixed</option>
+                <option value="recent">Recent</option>
+                <option value="popular">Popular</option>
+            </select>
+            <input type="number" id="min-likes" min="10" value="10" class="w-full mb-2 p-2 border rounded" required>
+            <input type="date" id="start-date" class="w-full mb-2 p-2 border rounded">
+            <input type="date" id="end-date" class="w-full mb-2 p-2 border rounded">
+            <textarea id="searchQueryBox" class="w-full mb-2 p-2 border rounded" readonly></textarea>
+            <button type="button" id="copyButton" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-2">Copy</button>
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Search</button>
+        </form>
+    </div>
+    <script>
+        const form = document.getElementById('searchForm');
+        const searchQueryBox = document.getElementById('searchQueryBox');
+        const copyButton = document.getElementById('copyButton');
+        
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - 10);
+            document.getElementById('end-date').value = endDate.toISOString().split('T')[0];
+            document.getElementById('start-date').value = startDate.toISOString().split('T')[0];
+        }
+
+        function generateQuery() {
+            const params = [
+                `lang:en ${encodeURIComponent(document.getElementById('normal-search-term').value)}`,
+                document.getElementById('exact-search-term').value ? `"${encodeURIComponent(document.getElementById('exact-search-term').value)}"` : '',
+                `min_faves:${document.getElementById('min-likes').value}`,
+                `since:${document.getElementById('start-date').value}`,
+                `until:${document.getElementById('end-date').value}`
+            ];
+            searchQueryBox.value = params.join(' ').trim();
+        }
+
+        setDefaultDates();
+        generateQuery();
+
+        form.addEventListener('input', generateQuery);
+
+        copyButton.addEventListener('click', function() {
+            searchQueryBox.select();
+            document.execCommand('copy');
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const queryString = `https://twitter.com/search?q=${encodeURIComponent(searchQueryBox.value)}&f=live`;
+            window.location.href = queryString;
+        });
+    </script>
 </body>
 </html>
